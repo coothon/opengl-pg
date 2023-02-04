@@ -15,7 +15,6 @@ typedef struct {
 	int width, height;
 	double time;
 	bool is_glfw;
-	bool is_glew;
 	GLFWwindow *window;
 } program_t;
 
