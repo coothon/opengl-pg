@@ -3,7 +3,7 @@ include make.conf
 BUILD_DIR := ./bin
 SRC_DIRS := ./
 
-SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
+SRCS := $(shell find $(SRC_DIRS) -name '*.c' -or -name '*.s')
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
@@ -15,16 +15,11 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 $(BUILD_DIR)/$(PROJ_NAME): $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
 
 $(BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/%.cpp.o: %.cpp
-	mkdir -p $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-
 
 .PHONY: clean
 clean:
