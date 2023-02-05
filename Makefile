@@ -1,7 +1,7 @@
 include make.conf
 
-BUILD_DIR := ./bin
-SRC_DIRS := ./
+BUILD_DIR := ./build
+SRC_DIRS := ./src
 
 SRCS := $(shell find $(SRC_DIRS) -name '*.c' -or -name '*.s')
 
@@ -16,6 +16,7 @@ CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 $(BUILD_DIR)/$(PROJ_NAME): $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o $@
+	cp ./extra/* ./build
 
 $(BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)

@@ -1,4 +1,4 @@
-#include "include/window.h"
+#include "window.h"
 
 int clean_exit(program_t *p, int code) {
 	if (p) {
@@ -19,7 +19,6 @@ int clean_exit(program_t *p, int code) {
 			}
 			free(p->render);
 		}
-
 		free(p);
 	}
 	return code;

@@ -1,12 +1,14 @@
-#include "include/render.h"
+#include "render.h"
 
-int render_init(render_t *r, renderer *R, shader_t *v, shader_t *f) {
+int render_init(renderer *R, shader_t *v, shader_t *f) {
 	glGenVertexArrays(1, &R->VAO);
 	glBindVertexArray(R->VAO);
 	glGenBuffers(1, &R->VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, R->VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(tt_vertices), tt_vertices, GL_STATIC_DRAW);
 
+	v->shader_type = GL_VERTEX_SHADER;
+	f->shader_type = GL_FRAGMENT_SHADER;
 	if (shader_init(v) == EXIT_FAILURE) return EXIT_FAILURE;
 	if (shader_init(f) == EXIT_FAILURE) return EXIT_FAILURE;
 

@@ -1,4 +1,4 @@
-#include "include/util.h"
+#include "util.h"
 
 void glfw_error_cb(int e, const char *desc) {
 	program_log_error(desc);

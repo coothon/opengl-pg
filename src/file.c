@@ -1,4 +1,4 @@
-#include "include/file.h"
+#include "file.h"
 
 // Error: NULL.
 char *read_file(char *path) {
@@ -9,10 +9,10 @@ char *read_file(char *path) {
 	if (path_file_size == -1L) return NULL;
 
 	fp = fopen(path, "r");
-	if (fp == NULL) return NULL;
+	if (!fp) return NULL;
 
 	file_contents = (char *)calloc(path_file_size, sizeof(char));
-	if (file_contents == NULL) {
+	if (!file_contents) {
 		fclose(fp);
 		return NULL;
 	}
@@ -39,7 +39,7 @@ long file_size(char *path) {
 	FILE *fp;
 
 	fp = fopen(path, "r");
-	if (fp == NULL) return -1L;
+	if (!fp) return -1L;
 	
 	// Preserve original seek location to minimize undefined behaviour.
 	orig_seek = ftell(fp);

@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #define GLFW_INCLUDE_NONE
-#include "include/glad.h"
+#include "glad.h"
 #include <GLFW/glfw3.h>
 
-#include "include/util.h"
-#include "include/render.h"
-#include "include/window.h"
-#include "include/file.h"
+#include "util.h"
+#include "render.h"
+#include "window.h"
+#include "file.h"
 
 #define GL_MAJ_VER 4
 #define GL_MIN_VER 6
@@ -37,12 +37,10 @@ int main(void) {
 		program_log_error("Memory allocation for \"simple_vert\" data failed. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
-	program->render->simple_vert->shader_type = GL_VERTEX_SHADER;
 	if (!(program->render->simple_frag = (shader_t *)calloc(1, sizeof(shader_t)))) {
 		program_log_error("Memory allocation for \"simple_frag\" data failed. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
-	program->render->simple_frag->shader_type = GL_FRAGMENT_SHADER;
 	if (!(program->render->simple_vert->shader_source = read_file(SIMPLE_VERT_PATH))) {
 		program_log_error("Unable to find/read \"simple.vert\" file. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
@@ -63,7 +61,7 @@ int main(void) {
 #endif
 
 	// GLFW init.
-	if ((program->is_glfw = glfwInit()) == GLFW_FALSE) {
+	if (!(program->is_glfw = glfwInit())) {
 		program_log_error("GLFW initialization failed. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
@@ -78,7 +76,7 @@ int main(void) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_MAJ_VER);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_MIN_VER);
 	program->window = glfwCreateWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, WINDOW_TITLE, NULL, NULL);
-	if (program->window == NULL) {
+	if (!program->window) {
 		program_log_error("GLFW window Creation failed. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
@@ -103,9 +101,11 @@ int main(void) {
 	program->timing->uptime_s = glfwGetTime();
 
 	glfwSwapInterval(1);
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClearColor(0.3f, 0.3, 0.3, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glfwSwapBuffers(program->window);
 
-	if (render_init(program->render, program->render->RENDERER1, program->render->simple_vert, program->render->simple_frag) == EXIT_FAILURE) return clean_exit(program, EXIT_FAILURE);
+	if (render_init(program->render->RENDERER1, program->render->simple_vert, program->render->simple_frag) == EXIT_FAILURE) return clean_exit(program, EXIT_FAILURE);
 
 	glUseProgram(program->render->RENDERER1->shader_program);
 	glBindVertexArray(program->render->RENDERER1->VAO);

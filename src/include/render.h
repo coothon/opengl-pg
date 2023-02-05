@@ -36,7 +36,7 @@ typedef struct {
 } render_t;
 
 
-int render_init(render_t *, renderer *, shader_t *, shader_t *);
+int render_init(renderer *, shader_t *, shader_t *);
 int shader_init(shader_t *);
 
 

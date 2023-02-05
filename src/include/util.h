@@ -6,11 +6,15 @@
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
+// These control console output.
 //#define PROGRAM_DEBUG_INFO
-#define PROGRAM_OPENGL_INFO
+//#define PROGRAM_OPENGL_INFO
 
 typedef struct {
-	double uptime_s, frametime_s, frametime_ms, fps;
+	double uptime_s;
+	double frametime_s;
+	double frametime_ms;
+	double fps;
 } timing_t;
 
 

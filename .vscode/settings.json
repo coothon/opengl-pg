@@ -1,0 +1,9 @@
+{
+	"C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
+	"files.associations": {
+		"khrplatform.h": "c",
+		"glad.h": "c",
+		"glfw3.h": "c",
+		"window.h": "c"
+	}
+}
