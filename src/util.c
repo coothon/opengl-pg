@@ -1,4 +1,7 @@
-#include "util.h"
+#include "include/util.h"
+
+global_data callbacks;
+
 
 void glfw_error_cb(int e, const char *desc) {
 	program_log_error(desc);
@@ -33,24 +36,30 @@ void glfw_framebuffer_size_cb(GLFWwindow *w, int width, int height) {
 	snprintf(info_string, (size_t)512, "New OpenGL framebuffer size: (x: %i, y: %i).", width, height);
 	program_log_info(info_string);
 #endif
+	callbacks.viewport_width = width;
+	callbacks.viewport_height = height;
 	glViewport(0, 0, width, height);
 }
 
-#ifdef PROGRAM_DEBUG_INFO
+
 void glfw_cursorpos_cb(GLFWwindow *w, double x, double y) {
+	callbacks.mouse_x = x;
+	callbacks.mouse_y = y;
+#ifdef PROGRAM_DEBUG_INFO
 	char info_string[512] = {0};
 	snprintf(info_string, (size_t)512, "New cursor position: (x: %G, y: %G).", x, y);
 	program_log_info(info_string);
-}
 #endif
+}
+	
 
 void calculate_frametime(timing_t *t, double curr) {
 	t->frametime_s = (curr - t->uptime_s);
-	t->frametime_ms = t->frametime_s * 1000.0d;
+	t->frametime_ms = t->frametime_s * 1000.0;
 }
 
 void calculate_fps(timing_t *t) {
-	t->fps = 1.0d / t->frametime_s;
+	t->fps = 1.0 / t->frametime_s;
 }
 
 void program_log_error(const char *log) {

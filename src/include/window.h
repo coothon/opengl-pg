@@ -19,8 +19,8 @@ typedef struct {
 	bool is_glfw;
 	GLFWwindow *window;
 	double cursor_x, cursor_y;
-	timing_t *timing;
-	render_t *render;
+	timing_t timing;
+	render_t render;
 } program_t;
 
 int clean_exit(program_t *, int);

@@ -9,36 +9,60 @@
 #include "file.h"
 #include "util.h"
 
-// Vertices for test triangle.
-static float tt_vertices[] = {
-	/* x      y     z    */
-      -0.5f, -0.5f, 0.0f,
-       0.5f, -0.5f, 0.0f,
-       0.0f,  0.5f, 0.0f
-};
-
 typedef struct {
-	char *shader_source;
-	unsigned int shader;
-	int shader_type;
+	GLchar *shader_source; // FREE
+	GLuint shader;
+	GLint shader_type;
 } shader_t;
 
 typedef struct {
-	unsigned int VAO;
-	unsigned int VBO;
-	unsigned int shader_program;
-} renderer;
+	vec2_f position;
+	vec3_f color;
+	vec2_f tex_coords;
+} vertex_t;
 
 typedef struct {
-	renderer *RENDERER1;
-	shader_t *simple_vert;
-	shader_t *simple_frag;
+	vertex_t *vertices; // FREE
+	GLuint *indices; // FREE
+	GLint num_vertices;
+	GLint num_indices;
+} renderer_data;
+
+typedef struct {
+	GLuint VAO;
+	GLuint VBO;
+	GLuint EBO;
+	shader_t vert;
+	shader_t frag;
+	GLuint shader_program;
+	renderer_data data;
+} renderer_t;
+
+typedef struct {
+	renderer_t RENDERER1;
 } render_t;
 
+#define NUM_TRIANGLE_VERTICES 3
+static vertex_t triangle_vertices[] = {
+	{-0.5f, -0.5f,
+	1.0f, 0.0f, 0.0f,
+	-1.0f, -1.0f},
+	{0.5f, -0.5f,
+	0.0f, 1.0f, 0.0f,
+	1.0f, -1.0f},
+	{0.0f, 0.5f,
+	0.0f, 0.0f, 1.0f,
+	0.0f, 1.0f}
+};
 
-int render_init(renderer *, shader_t *, shader_t *);
+#define NUM_TRIANGLE_INDICES 3
+static GLuint triangle_indices[] = {
+	0, 1, 2
+};
+
+void populate_renderer_data(renderer_data *, GLint, GLint, vertex_t *, GLuint *);
+int renderer_init(renderer_t *);
 int shader_init(shader_t *);
-
-
+void use_renderer(renderer_t *);
 
 #endif // RENDER_H_

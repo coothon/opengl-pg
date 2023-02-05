@@ -1,47 +1,60 @@
-#include "render.h"
+#include "include/render.h"
+#include "include/glad.h"
 
-int render_init(renderer *R, shader_t *v, shader_t *f) {
-	glGenVertexArrays(1, &R->VAO);
-	glBindVertexArray(R->VAO);
-	glGenBuffers(1, &R->VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, R->VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(tt_vertices), tt_vertices, GL_STATIC_DRAW);
+// VERTICES AND INDICES MUST BE ALLOCATED ON THE HEAP AND LEFT FOR FREEING LATER!
+void populate_renderer_data(renderer_data *rd, GLint num_vcs, GLint num_ids, vertex_t *vcs, GLuint *ids) {
+	rd->num_vertices = num_vcs;
+	rd->num_indices = num_ids;
+	rd->vertices = vcs;
+	rd->indices = ids;
+}
 
-	v->shader_type = GL_VERTEX_SHADER;
-	f->shader_type = GL_FRAGMENT_SHADER;
-	if (shader_init(v) == EXIT_FAILURE) return EXIT_FAILURE;
-	if (shader_init(f) == EXIT_FAILURE) return EXIT_FAILURE;
+// Assuming r->data filled. Only call once per renderer_t.
+int renderer_init(renderer_t *r) {
+	glGenVertexArrays(1, &r->VAO);
+	glGenBuffers(1, &r->VBO);
+	glGenBuffers(1, &r->EBO);
 
-	R->shader_program = glCreateProgram();
-	glAttachShader(R->shader_program, v->shader);
-	glAttachShader(R->shader_program, f->shader);
-	glLinkProgram(R->shader_program);
-	
-	// Check.
+	glBindVertexArray(r->VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, r->VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t) * r->data.num_vertices, r->data.vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, r->EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * r->data.num_indices, r->data.indices, GL_STATIC_DRAW);
+
+	r->vert.shader_type = GL_VERTEX_SHADER;
+	r->frag.shader_type = GL_FRAGMENT_SHADER;
+	if (shader_init(&r->vert) == EXIT_FAILURE) return EXIT_FAILURE;
+	if (shader_init(&r->frag) == EXIT_FAILURE) return EXIT_FAILURE;
+	r->shader_program = glCreateProgram();
+	glAttachShader(r->shader_program, r->vert.shader);
+	glAttachShader(r->shader_program, r->frag.shader);
+	glLinkProgram(r->shader_program);
+
 	int program_status;
 	char program_log[512];
-	glGetProgramiv(R->shader_program, GL_LINK_STATUS, &program_status);
+	glGetProgramiv(r->shader_program, GL_LINK_STATUS, &program_status);
 	if (!program_status) {
-		glGetProgramInfoLog(R->shader_program, 512, NULL, program_log);
+		glGetProgramInfoLog(r->shader_program, 512, NULL, program_log);
 		program_log_error(program_log);
 		return EXIT_FAILURE;
 	}
 
-	glDeleteShader(v->shader);
-	glDeleteShader(f->shader);
+	glDeleteShader(r->vert.shader);
+	glDeleteShader(r->frag.shader);
 
 #ifdef PROGRAM_OPENGL_INFO
 	program_log_info("Shaders compiled. Program linked successfully.");
 #endif
 
-	glVertexAttribPointer(0,
-						  3,
-						  GL_FLOAT,
-						  GL_FALSE,
-						  3 * sizeof(float),
-						  (void*)0);
 	glEnableVertexAttribArray(0);
-	
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), NULL);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, color));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, tex_coords));
+
+	glBindVertexArray(0);
 	return EXIT_SUCCESS;
 }
 
@@ -61,4 +74,9 @@ int shader_init(shader_t *s) {
 	}
 
 	return EXIT_SUCCESS;
+}
+
+void use_renderer(renderer_t *r) {
+	glUseProgram(r->shader_program);
+	glBindVertexArray(r->VAO);
 }

@@ -8,7 +8,31 @@
 
 // These control console output.
 //#define PROGRAM_DEBUG_INFO
-//#define PROGRAM_OPENGL_INFO
+#define PROGRAM_OPENGL_INFO
+
+typedef struct {
+	GLfloat x, y;
+} vec2_f;
+
+typedef struct {
+	GLfloat x, y, z;
+} vec3_f;
+
+typedef struct {
+	GLfloat x, y, z, w;
+} vec4_f;
+
+typedef struct {
+	GLuint x, y;
+} vec2_ui;
+
+typedef struct {
+	GLuint x, y, z;
+} vec3_ui;
+
+typedef struct {
+	GLuint x, y, z, w;
+} vec4_ui;
 
 typedef struct {
 	double uptime_s;
@@ -18,12 +42,20 @@ typedef struct {
 } timing_t;
 
 
+typedef struct {
+	GLint viewport_width;
+	GLint viewport_height;
+	GLdouble mouse_x;
+	GLdouble mouse_y;
+} global_data;
+
+// Scary!
+extern global_data callbacks;
+
 void glfw_error_cb(int, const char *);
 void glfw_key_cb(GLFWwindow *, int, int, int, int);
 void glfw_framebuffer_size_cb(GLFWwindow *, int, int);
-#ifdef PROGRAM_DEBUG_INFO
 void glfw_cursorpos_cb(GLFWwindow *, double, double);
-#endif
 void calculate_frametime(timing_t *, double);
 void calculate_fps(timing_t *);
 void program_log_error(const char *);
