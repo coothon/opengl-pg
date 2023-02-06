@@ -108,7 +108,7 @@ int main(void) {
 	double temp_time;
 	program->timing.uptime_s = glfwGetTime();
 
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 	glClearColor(0.3f, 0.3, 0.3, 1.0f);
 
 	// Initialize the triangle renderer.
@@ -128,7 +128,7 @@ int main(void) {
 
 #ifdef PROGRAM_DEBUG_INFO
 		snprintf(info_string, (size_t)512, "Timing data:\nuptime_s: %G\nframetime_ms: %G\nfps: %G",
-				 program->timing->uptime_s, program->timing->frametime_ms, program->timing->fps);
+				 program->timing.uptime_s, program->timing.frametime_ms, program->timing.fps);
 		program_log_info(info_string);
 #endif
 
@@ -153,7 +153,7 @@ int main(void) {
 			glUniform1f(uniform_time_sin, uniform_uptime_sin_value);
 			glUniform2f(uniform_resolution, uniform_vp_width, uniform_vp_height);
 			glUniform2f(uniform_mouse, uniform_mousepos_x, uniform_mousepos_y);
-			glUniform2f(uniform_scale, uniform_uptime_sin_value, 1.0f - uniform_uptime_sin_value);
+			glUniform2f(uniform_scale, 1.0f, 1.0f);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
 
@@ -170,7 +170,7 @@ int main(void) {
 			glUniform2f(uniform_resolution, uniform_vp_width, uniform_vp_height);
 			glUniform2f(uniform_mouse, uniform_mousepos_x, uniform_mousepos_y);
 			glUniform2f(uniform_offset_pos, uniform_mousepos_x, uniform_mousepos_y);
-			glUniform2f(uniform_scale, 150.0f + 150.0f * uniform_uptime_sin_value, 150.0f + 150.0f * (1.0f - uniform_uptime_sin_value));
+			glUniform2f(uniform_scale, 150.0f, 150.0f);
 			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 		}
 

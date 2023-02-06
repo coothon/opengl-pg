@@ -39,8 +39,19 @@ typedef struct {
 } renderer_t;
 
 typedef struct {
-	renderer_t triangle_r;
-	renderer_t background_r;
+#define triangle_r   RENDERER1
+#define background_r RENDERER2
+#define test_r       RENDERER3
+#define test_r       RENDERER4
+	renderer_t RENDERER1;
+	renderer_t RENDERER2;
+	renderer_t RENDERER3;
+	renderer_t RENDERER4;
+	renderer_t RENDERER5;
+	renderer_t RENDERER6;
+	renderer_t RENDERER7;
+	renderer_t RENDERER8;
+	renderer_t RENDERER9;
 } render_t;
 
 #define NUM_TRIANGLE_VERTICES 3
