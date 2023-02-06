@@ -6,6 +6,12 @@
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
+
+// Specify OpenGL version to use; it will use the closest match.
+// Currently it is set to 4.6, the newest.
+#define GL_MAJ_VER 4
+#define GL_MIN_VER 6
+
 // These control console output.
 //#define PROGRAM_DEBUG_INFO
 #define PROGRAM_OPENGL_INFO

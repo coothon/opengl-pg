@@ -12,31 +12,63 @@
 #include "include/window.h"
 #include "include/file.h"
 
-#define GL_MAJ_VER 4
-#define GL_MIN_VER 6
-
 int main (void);
 
 int main(void) {
 	program_t *program = (program_t *)calloc(1, sizeof(program_t));
-	if (!(program->render.RENDERER1.vert.shader_source = read_file(SIMPLE_VERT_PATH))) {
-		program_log_error("Unable to find/read \"simple.vert\" file. Exiting. . . .");
+	if (!program) {
+		program_log_error("Memory allocation failed. Exiting. . . .");
+		return EXIT_FAILURE;
+	}
+
+	// Source shaders for triangle renderer.
+	if (!(program->render.triangle_r.vert.shader_source = read_file(SS_VERT_PATH))) {
+		program_log_error("Unable to find/read \""SS_VERT_PATH"\" file. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
 #ifdef PROGRAM_OPENGL_INFO
-	char info_vert[2048] = {0};
-	snprintf(info_vert, 2048, "Vertex shader:\n%s", program->render.RENDERER1.vert.shader_source);
-	program_log_info(info_vert);
+	{
+		char info_vert[2048] = {0};
+		snprintf(info_vert, 2048, "Vertex shader:\n%s", program->render.triangle_r.vert.shader_source);
+		program_log_info(info_vert);
+	}
 #endif
-	if (!(program->render.RENDERER1.frag.shader_source = read_file(SIMPLE_FRAG_PATH))) {
-		program_log_error("Unable to find/read \"simple.frag\" file. Exiting. . . .");
+	if (!(program->render.triangle_r.frag.shader_source = read_file(SIMPLE_FRAG_PATH))) {
+		program_log_error("Unable to find/read \""SIMPLE_FRAG_PATH"\" file. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
 #ifdef PROGRAM_OPENGL_INFO
-	char info_frag[2048] = {0};
-	snprintf(info_frag, 2048, "Fragment shader:\n%s", program->render.RENDERER1.frag.shader_source);
-	program_log_info(info_frag);
+	{
+		char info_frag[2048] = {0};
+		snprintf(info_frag, 2048, "Fragment shader:\n%s", program->render.triangle_r.frag.shader_source);
+		program_log_info(info_frag);
+	}
 #endif
+
+	// Source shaders for background renderer.
+	if (!(program->render.background_r.vert.shader_source = read_file(CS_VERT_PATH))) {
+		program_log_error("Unable to find/read \""CS_VERT_PATH"\" file. Exiting. . . .");
+		return clean_exit(program, EXIT_FAILURE);
+	}
+#ifdef PROGRAM_OPENGL_INFO
+	{
+		char info_vert[2048] = {0};
+		snprintf(info_vert, 2048, "Vertex shader:\n%s", program->render.background_r.vert.shader_source);
+		program_log_info(info_vert);
+	}
+#endif
+	if (!(program->render.background_r.frag.shader_source = read_file(BACKGROUND_FRAG_PATH))) {
+		program_log_error("Unable to find/read \""BACKGROUND_FRAG_PATH"\" file. Exiting. . . .");
+		return clean_exit(program, EXIT_FAILURE);
+	}
+#ifdef PROGRAM_OPENGL_INFO
+	{
+		char info_frag[2048] = {0};
+		snprintf(info_frag, 2048, "Fragment shader:\n%s", program->render.background_r.frag.shader_source);
+		program_log_info(info_frag);
+	}
+#endif
+
 
 	// GLFW init.
 	if (!(program->is_glfw = glfwInit())) {
@@ -79,8 +111,13 @@ int main(void) {
 	glfwSwapInterval(0);
 	glClearColor(0.3f, 0.3, 0.3, 1.0f);
 
-	populate_renderer_data(&program->render.RENDERER1.data, NUM_TRIANGLE_VERTICES, NUM_TRIANGLE_INDICES, triangle_vertices, triangle_indices);
-	renderer_init(&program->render.RENDERER1);
+	// Initialize the triangle renderer.
+	populate_renderer_data(&program->render.triangle_r.data, NUM_TRIANGLE_VERTICES, NUM_TRIANGLE_INDICES, triangle_vertices, triangle_indices);
+	renderer_init(&program->render.triangle_r);
+
+	// Initialize the background renderer.
+	populate_renderer_data(&program->render.background_r.data, NUM_RECT_VERTICES, NUM_RECT_INDICES, rect_vertices, rect_indices);
+	renderer_init(&program->render.background_r);
 
 	// Main event loop. This is where everything happens.
 	while (!glfwWindowShouldClose(program->window)) {
@@ -96,18 +133,48 @@ int main(void) {
 #endif
 
 		glClear(GL_COLOR_BUFFER_BIT);
-		use_renderer(&program->render.RENDERER1);
 
-		int uniform_time = glGetUniformLocation(program->render.RENDERER1.shader_program, "uptime");
-		int uniform_time_sin = glGetUniformLocation(program->render.RENDERER1.shader_program, "uptime_sin");
-		int uniform_resolution = glGetUniformLocation(program->render.RENDERER1.shader_program, "resolution");
-		int uniform_mouse = glGetUniformLocation(program->render.RENDERER1.shader_program, "mouse_pos");
-		glUniform1f(uniform_time, (GLfloat)program->timing.uptime_s);
-		glUniform1f(uniform_time_sin, (GLfloat)((sin(program->timing.uptime_s) / 2.0) + 0.5));
-		glUniform2f(uniform_resolution, callbacks.viewport_width, callbacks.viewport_height);
-		glUniform2f(uniform_mouse, ((GLfloat)callbacks.mouse_x) - callbacks.viewport_width / 2.0f, ((GLfloat)callbacks.mouse_y) - callbacks.viewport_height / 2.0f);
+		GLfloat uniform_uptime_value = (GLfloat)program->timing.uptime_s;
+		GLfloat uniform_uptime_sin_value = (GLfloat)((sin(program->timing.uptime_s) / 2.0) + 0.5);
+		GLfloat uniform_vp_width = (GLfloat)callbacks.viewport_width;
+		GLfloat uniform_vp_height = (GLfloat)callbacks.viewport_height;
+		GLfloat uniform_mousepos_x = (GLfloat)callbacks.mouse_x - (uniform_vp_width / 2.0f);
+		GLfloat uniform_mousepos_y = -((GLfloat)callbacks.mouse_y - (uniform_vp_height / 2.0f));
 
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+		{ // Background update.
+			glUseProgram(program->render.background_r.shader_program);
+			glBindVertexArray(program->render.background_r.VAO);
+			int uniform_time = glGetUniformLocation(program->render.background_r.shader_program, "uptime");
+			int uniform_time_sin = glGetUniformLocation(program->render.background_r.shader_program, "uptime_sin");
+			int uniform_resolution = glGetUniformLocation(program->render.background_r.shader_program, "resolution");
+			int uniform_mouse = glGetUniformLocation(program->render.background_r.shader_program, "mouse_pos");
+			int uniform_scale = glGetUniformLocation(program->render.background_r.shader_program, "scale");
+			glUniform1f(uniform_time, uniform_uptime_value);
+			glUniform1f(uniform_time_sin, uniform_uptime_sin_value);
+			glUniform2f(uniform_resolution, uniform_vp_width, uniform_vp_height);
+			glUniform2f(uniform_mouse, uniform_mousepos_x, uniform_mousepos_y);
+			glUniform2f(uniform_scale, uniform_uptime_sin_value, 1.0f - uniform_uptime_sin_value);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
+
+		{ // Triangle update.
+			use_renderer(&program->render.triangle_r);
+			int uniform_time = glGetUniformLocation(program->render.triangle_r.shader_program, "uptime");
+			int uniform_time_sin = glGetUniformLocation(program->render.triangle_r.shader_program, "uptime_sin");
+			int uniform_resolution = glGetUniformLocation(program->render.triangle_r.shader_program, "resolution");
+			int uniform_mouse = glGetUniformLocation(program->render.triangle_r.shader_program, "mouse_pos");
+			int uniform_offset_pos = glGetUniformLocation(program->render.triangle_r.shader_program, "offset_pos");
+			int uniform_scale = glGetUniformLocation(program->render.triangle_r.shader_program, "scale");
+			glUniform1f(uniform_time, uniform_uptime_value);
+			glUniform1f(uniform_time_sin, uniform_uptime_sin_value);
+			glUniform2f(uniform_resolution, uniform_vp_width, uniform_vp_height);
+			glUniform2f(uniform_mouse, uniform_mousepos_x, uniform_mousepos_y);
+			glUniform2f(uniform_offset_pos, uniform_mousepos_x, uniform_mousepos_y);
+			glUniform2f(uniform_scale, 150.0f + 150.0f * uniform_uptime_sin_value, 150.0f + 150.0f * (1.0f - uniform_uptime_sin_value));
+			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+		}
+
+		// Prepare your eyes. . . .
 		glfwSwapBuffers(program->window);
 		glfwPollEvents();
 	}

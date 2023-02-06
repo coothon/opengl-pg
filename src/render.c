@@ -52,9 +52,12 @@ int renderer_init(renderer_t *r) {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, color));
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, tex_coords));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, uv));
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	//use_renderer(NULL);
 	return EXIT_SUCCESS;
 }
 
@@ -77,6 +80,10 @@ int shader_init(shader_t *s) {
 }
 
 void use_renderer(renderer_t *r) {
+	if (!r) {
+		glBindVertexArray(0);
+		return;
+	}
 	glUseProgram(r->shader_program);
 	glBindVertexArray(r->VAO);
 }

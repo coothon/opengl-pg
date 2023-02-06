@@ -10,7 +10,7 @@
 #include "util.h"
 
 typedef struct {
-	GLchar *shader_source; // FREE
+	const GLchar *shader_source; // FREE
 	GLuint shader;
 	GLint shader_type;
 } shader_t;
@@ -18,7 +18,7 @@ typedef struct {
 typedef struct {
 	vec2_f position;
 	vec3_f color;
-	vec2_f tex_coords;
+	vec2_f uv;
 } vertex_t;
 
 typedef struct {
@@ -39,7 +39,8 @@ typedef struct {
 } renderer_t;
 
 typedef struct {
-	renderer_t RENDERER1;
+	renderer_t triangle_r;
+	renderer_t background_r;
 } render_t;
 
 #define NUM_TRIANGLE_VERTICES 3
@@ -59,6 +60,32 @@ static vertex_t triangle_vertices[] = {
 static GLuint triangle_indices[] = {
 	0, 1, 2
 };
+
+#define NUM_RECT_VERTICES 4
+static vertex_t rect_vertices[] = {{
+		{1.0f,  1.0f},
+		{1.0f, 1.0f, 1.0f},
+		{1.0f, 1.0f}
+	}, {
+		{1.0f,  -1.0f},
+		{1.0f, 1.0f, 1.0f},
+		{1.0f, -1.0f}
+	}, {
+		{-1.0f,  -1.0f},
+		{1.0f, 1.0f, 1.0f},
+		{-1.0f, -1.0f}
+	}, {
+		{-1.0f,  1.0f},
+		{1.0f, 1.0f, 1.0f},
+		{-1.0f, 1.0f}
+	}
+};
+
+#define NUM_RECT_INDICES 6
+static GLuint rect_indices[] = {
+	0, 1, 3,
+	1, 2, 3
+};  
 
 void populate_renderer_data(renderer_data *, GLint, GLint, vertex_t *, GLuint *);
 int renderer_init(renderer_t *);
