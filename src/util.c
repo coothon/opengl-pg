@@ -4,17 +4,20 @@ global_data callbacks;
 
 
 void glfw_error_cb(int e, const char *desc) {
+	(void)e;
 	program_log_error(desc);
 }
 
 void glfw_key_cb(GLFWwindow *w, int key, int scancode, int action, int mods) {
-#ifdef PROGRAM_DEBUG_INFO
+	(void)scancode;
+	(void)mods;
+#if PROGRAM_DEBUG_INFO
 	char info_string[512] = {0};
 #endif
 
 	switch (action) {
 	case GLFW_PRESS:
-#ifdef PROGRAM_DEBUG_INFO
+#if PROGRAM_DEBUG_INFO
 		snprintf(info_string, (size_t)512, "Key %s pressed.", glfwGetKeyName(key, 0));
 		program_log_info(info_string);
 #endif
@@ -31,7 +34,8 @@ void glfw_key_cb(GLFWwindow *w, int key, int scancode, int action, int mods) {
 }
 
 void glfw_framebuffer_size_cb(GLFWwindow *w, int width, int height) {
-#ifdef PROGRAM_DEBUG_INFO
+	(void)w;
+#if PROGRAM_DEBUG_INFO
 	char info_string[512] = {0};
 	snprintf(info_string, (size_t)512, "New OpenGL framebuffer size: (x: %i, y: %i).", width, height);
 	program_log_info(info_string);
@@ -43,9 +47,10 @@ void glfw_framebuffer_size_cb(GLFWwindow *w, int width, int height) {
 
 
 void glfw_cursorpos_cb(GLFWwindow *w, double x, double y) {
+	(void)w;
 	callbacks.mouse_x = x;
 	callbacks.mouse_y = y;
-#ifdef PROGRAM_DEBUG_INFO
+#if PROGRAM_DEBUG_INFO
 	char info_string[512] = {0};
 	snprintf(info_string, (size_t)512, "New cursor position: (x: %G, y: %G).", x, y);
 	program_log_info(info_string);

@@ -13,8 +13,8 @@
 #define GL_MIN_VER 6
 
 // These control console output.
-//#define PROGRAM_DEBUG_INFO
-#define PROGRAM_OPENGL_INFO
+#define PROGRAM_DEBUG_INFO 1
+#define PROGRAM_OPENGL_INFO 1
 
 typedef struct {
 	GLfloat x, y;

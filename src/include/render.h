@@ -42,7 +42,6 @@ typedef struct {
 #define triangle_r   RENDERER1
 #define background_r RENDERER2
 #define test_r       RENDERER3
-#define test_r       RENDERER4
 	renderer_t RENDERER1;
 	renderer_t RENDERER2;
 	renderer_t RENDERER3;
@@ -56,15 +55,18 @@ typedef struct {
 
 #define NUM_TRIANGLE_VERTICES 3
 static vertex_t triangle_vertices[] = {
-	{-0.5f, -0.5f,
-	1.0f, 0.0f, 0.0f,
-	-1.0f, -1.0f},
-	{0.5f, -0.5f,
-	0.0f, 1.0f, 0.0f,
-	1.0f, -1.0f},
-	{0.0f, 0.5f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f}
+	{
+		{-0.5f, -0.5f},
+		{1.0f, 0.0f, 0.0f},
+		{-1.0f, -1.0f}},
+	{
+		{0.5f, -0.5f},
+		{0.0f, 1.0f, 0.0f},
+		{1.0f, -1.0f}},
+	{
+		{0.0f, 0.5f},
+		{0.0f, 0.0f, 1.0f},
+		{0.0f, 1.0f}}
 };
 
 #define NUM_TRIANGLE_INDICES 3

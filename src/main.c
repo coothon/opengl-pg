@@ -1,3 +1,8 @@
+#include <unistd.h>
+
+// Why??!! Why the FUCK is this not already declared?!??!
+extern int usleep(__useconds_t __useconds);
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -11,6 +16,9 @@
 #include "include/render.h"
 #include "include/window.h"
 #include "include/file.h"
+
+#define DESIRED_FPS 240
+#define DESIRED_FRAMETIME_US 1000000/DESIRED_FPS
 
 int main (void);
 
@@ -26,48 +34,20 @@ int main(void) {
 		program_log_error("Unable to find/read \""SS_VERT_PATH"\" file. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
-#ifdef PROGRAM_OPENGL_INFO
-	{
-		char info_vert[2048] = {0};
-		snprintf(info_vert, 2048, "Vertex shader:\n%s", program->render.triangle_r.vert.shader_source);
-		program_log_info(info_vert);
-	}
-#endif
 	if (!(program->render.triangle_r.frag.shader_source = read_file(SIMPLE_FRAG_PATH))) {
 		program_log_error("Unable to find/read \""SIMPLE_FRAG_PATH"\" file. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
-#ifdef PROGRAM_OPENGL_INFO
-	{
-		char info_frag[2048] = {0};
-		snprintf(info_frag, 2048, "Fragment shader:\n%s", program->render.triangle_r.frag.shader_source);
-		program_log_info(info_frag);
-	}
-#endif
 
 	// Source shaders for background renderer.
 	if (!(program->render.background_r.vert.shader_source = read_file(CS_VERT_PATH))) {
 		program_log_error("Unable to find/read \""CS_VERT_PATH"\" file. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
-#ifdef PROGRAM_OPENGL_INFO
-	{
-		char info_vert[2048] = {0};
-		snprintf(info_vert, 2048, "Vertex shader:\n%s", program->render.background_r.vert.shader_source);
-		program_log_info(info_vert);
-	}
-#endif
 	if (!(program->render.background_r.frag.shader_source = read_file(BACKGROUND_FRAG_PATH))) {
 		program_log_error("Unable to find/read \""BACKGROUND_FRAG_PATH"\" file. Exiting. . . .");
 		return clean_exit(program, EXIT_FAILURE);
 	}
-#ifdef PROGRAM_OPENGL_INFO
-	{
-		char info_frag[2048] = {0};
-		snprintf(info_frag, 2048, "Fragment shader:\n%s", program->render.background_r.frag.shader_source);
-		program_log_info(info_frag);
-	}
-#endif
 
 
 	// GLFW init.
@@ -102,13 +82,13 @@ int main(void) {
 	glfwSetKeyCallback(program->window, glfw_key_cb);
 	glfwSetCursorPosCallback(program->window, glfw_cursorpos_cb);
 
-#ifdef PROGRAM_DEBUG_INFO
+#if PROGRAM_DEBUG_INFO
 	char info_string[512] = {0};
 #endif
 	double temp_time;
 	program->timing.uptime_s = glfwGetTime();
 
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 	glClearColor(0.3f, 0.3, 0.3, 1.0f);
 
 	// Initialize the triangle renderer.
@@ -126,7 +106,7 @@ int main(void) {
 		calculate_fps(&program->timing);
 		program->timing.uptime_s = temp_time;
 
-#ifdef PROGRAM_DEBUG_INFO
+#if PROGRAM_DEBUG_INFO
 		snprintf(info_string, (size_t)512, "Timing data:\nuptime_s: %G\nframetime_ms: %G\nfps: %G",
 				 program->timing.uptime_s, program->timing.frametime_ms, program->timing.fps);
 		program_log_info(info_string);
@@ -176,6 +156,7 @@ int main(void) {
 
 		// Prepare your eyes. . . .
 		glfwSwapBuffers(program->window);
+		usleep(DESIRED_FRAMETIME_US);
 		glfwPollEvents();
 	}
 

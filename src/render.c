@@ -43,7 +43,7 @@ int renderer_init(renderer_t *r) {
 	glDeleteShader(r->vert.shader);
 	glDeleteShader(r->frag.shader);
 
-#ifdef PROGRAM_OPENGL_INFO
+#if PROGRAM_OPENGL_INFO
 	program_log_info("Shaders compiled. Program linked successfully.");
 #endif
 
